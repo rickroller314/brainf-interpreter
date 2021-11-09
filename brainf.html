@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			brainf interpreter
+		</title>
+	</head>
+	<body>
+		<button onclick="brainf(document.getElementById('code').innerText)">run</button>
+		<p>code</p>
+		<p style="border:solid" id="code" contenteditable></p>
+		<p>result</p>
+		<p id="result"></p>
+	</body>
+	<script>
+		try{
+		function brainf(code){
+			mem=new Array(256).fill(0);
+			ptr=0;
+			pc=0;
+			mode=0;
+			scope=0;
+			while(-1 < pc && pc < code.length){
+				//alert(pc+", "+code[pc]+", "+mode+", "+scope);
+				switch(mode){
+					case 1:
+						if(code[pc]=="[") scope++;
+						if(code[pc]=="]") scope--;
+						if(scope<0) mode=0;
+						pc++;
+						break;
+					case 2:
+						if(code[pc]=="[") scope--;
+						if(code[pc]=="]") scope++;
+						if(scope==0) mode=0;
+						else pc--;
+						break;
+					case 0:
+						switch(code[pc]){
+							case "+":
+								mem[ptr]++;
+								mem[ptr]&=0xff;
+								break;
+							case "-":
+								mem[ptr]--;
+								mem[ptr]&=0xff;
+								break;
+							case ">":
+								ptr++;
+								ptr&=0xff;
+								break;
+							case "<":
+								ptr--;
+								ptr&=0xff;
+								break;
+							case "[":
+								if(mem[ptr]==0) mode=1;
+								break;
+							case "]":
+								if(mem[ptr]!==0) mode=2;
+								break;
+							case ".":
+								document.getElementById("result").innerText+=String.fromCodePoint(mem[ptr]);
+								break;
+							case ",":
+								mem[ptr]=prompt("Enter char:", "_").charCodeAt(0);
+								break;
+						}
+						if(mode!==2) pc++;
+						break;
+				}
+			}
+		}
+		}catch(e){alert(e.stack);}
+	</script>
+</html>
